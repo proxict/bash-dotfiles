@@ -1,0 +1,28 @@
+#!/bin/bash
+
+parse_git_branch() {
+    gitstatus=`git status 2> /dev/null`
+    if [[ `echo $gitstatus | grep "Changes to be committed"` != "" ]]; then
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1***)/'
+    elif [[ `echo $gitstatus | grep "Changes not staged for commit"` != "" ]]; then
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1**)/'
+    elif [[ `echo $gitstatus | grep "Untracked"` != "" ]]; then
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1*)/'
+    elif [[ `echo $gitstatus | grep "nothing to commit"` != "" ]]; then
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    else
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1?)/'
+    fi
+}
+
+parse_git_branch_color() {
+    local green="\[\033[0;32m\]"
+    local cyan="\[\033[0;36m\]"
+
+    br=$(parse_git_branch)
+    if [[ $br == "(master)" || $br == "(master*)" || $br == "(master**)" || $br == "(master***)" ]]; then
+        echo "${cyan}"
+    else
+        echo "${green}"
+    fi
+}
