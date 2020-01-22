@@ -46,7 +46,7 @@ function prompt_command() {
 
     local at="$(printf ${lightPurpleEx}@${resetEx})"
     local hostname="$(printf ${lightMagentaEx}${HOSTNAME}${resetEx})"
-    local dir="$(printf ${lightGrayEx}[${lightGreenEx}$(dirs)${lightGrayEx}]${resetEx})"
+    local dir="$(printf ${lightGrayEx}[${lightGreenEx}"$(dirs)"${lightGrayEx}]${resetEx})"
 
     # To get the unicode values: echo <character> hexdump -C
     local arrowEx="$(printf ${lightYellowEx}'\xEF\x83\x9A'${resetEx})"
