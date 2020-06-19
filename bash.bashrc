@@ -21,6 +21,7 @@ fi
 
 export HISTCONTROL=ignoreboth:erasedups
 HISTSIZE= HISTFILESIZE= # Infinite history
+HISTIGNORE='rm *:git reset*'
 
 # Prepend cd to directory names automatically
 shopt -s autocd 2> /dev/null
@@ -42,7 +43,7 @@ shopt -s cdable_vars
 [[ -f /etc/bash/aliases ]] && . /etc/bash/aliases
 [[ -f /etc/bash/bash_globals ]] && . /etc/bash/bash_globals
 [[ -f /etc/bash/less_colors ]] && . /etc/bash/less_colors
-[[ -f /etc/dircolors ]] && eval "`dircolors -b /etc/dircolors`"
+[[ -f /etc/dircolors ]] && eval "$(dircolors -b /etc/dircolors)"
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 [[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
