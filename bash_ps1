@@ -1,89 +1,47 @@
+# Build the prompt text
 function prompt_command() {
-    local EXIT="$?"
-    # colors!
-    local black="\[\e[0;30m\]"
-    local red="\[\e[0;31m\]"
-    local green="\[\e[0;32m\]"
-    local yellow="\[\e[0;33m\]"
-    local blue="\[\e[0;34m\]"
-    local magenta="\[\e[0;35m\]"
-    local cyan="\[\e[0;36m\]"
-    local lightGray="\[\e[0;37m\]"
-    local darkGray="\[\e[0;90m\]"
-    local lightRed="\[\e[0;91m\]"
-    local lightGreen="\[\e[0;92m\]"
-    local lightYellow="\[\e[0;93m\]"
-    local lightBlue="\[\e[0;94m\]"
-    local lightMagenta="\[\e[0;95m\]"
-    local lightCyan="\[\e[0;96m\]"
-    local white="\[\e[0;97m\]"
+    local LAST_EXIT_CODE="$?"
 
-    local cyanD="\[\e[1;36m\]"
-    local greenD="\[\e[1;32m\]"
-    local redD="\[\e[1;31m\]"
-    local blueD="\[\e[1;34m\]"
-    local purpleD="\[\e[1;35m\]"
-    local resetColor="\[\e[0m\]"
+    local RED="\[\e[0;31m\]"
+    local LIGHT_GRAY="\[\e[0;37m\]"
+    local LIGHT_RED="\[\e[0;91m\]"
+    local LIGHT_GRAY_EX="\[\x1b[38;2;220;220;220m\]"
+    local LIGHT_BLUE_EX="\[\x1b[38;2;102;217;239m\]"
+    local LIGHT_MAGENTA_EX="\[\x1b[38;2;249;38;114m\]"
+    local LIGHT_PURPLE_EX="\[\x1b[38;2;174;129;255m\]"
+    local LIGHT_GREEN_EX="\[\x1b[38;2;166;226;46m\]"
+    local LIGHT_YELLOW_EX="\[\x1b[38;2;255;240;90m\]"
+    local RESET="\[\x1b[0m\]"
 
-    local straightLine="\342\224\200"
-    local leftDownLine="\342\224\214"
-    local downRightLine="\342\224\224"
-    local rightArrow="\076"
+    # To get the unicode values: echo -n <character> hexdump -C
+    local ARROW_EX="$(printf ${LIGHT_YELLOW_EX}'\xEF\x83\x9A'${RESET})"
+    local BULLET_EX="$(printf ${LIGHT_YELLOW_EX}'\xE2\x80\xA2'${RESET})"
+    local CHEVRON_EX="$(printf ${LIGHT_YELLOW_EX}'\xEF\x81\x94'${RESET})"
+    local STRAIGHT_LINE="\342\224\200"
 
-    local lightGrayEx="\[\x1b[38;2;220;220;220m\]"
-    local lightBlueEx="\[\x1b[38;2;102;217;239m\]"
-    local lightMagentaEx="\[\x1b[38;2;249;38;114m\]"
-    local lightPurpleEx="\[\x1b[38;2;174;129;255m\]"
-    local lightGreenEx="\[\x1b[38;2;166;226;46m\]"
-    local lightYellowEx="\[\x1b[38;2;255;240;90m\]"
-    local resetEx="\[\x1b[0m\]"
+    local ERROR_REPORT=""
+    [ $LAST_EXIT_CODE != 0 ] && ERROR_REPORT="[${RED}${LAST_EXIT_CODE}${LIGHT_GRAY}]${STRAIGHT_LINE}"
+
+    if [ -f /etc/bash/git_branch ]; then
+        source /etc/bash/git_branch
+        local GIT_BRANCH=$(parse_git_branch)
+        GIT_BRANCH_COLOR=${LIGHT_PURPLE_EX}
+        [[ "${GIT_BRANCH}" == "(master)" || "${GIT_BRANCH}" == "(master*)" || "${GIT_BRANCH}" == "(master**)" || "${GIT_BRANCH}" == "(master***)" ]] && GIT_BRANCH_COLOR=${LIGHT_BLUE_EX}
+        local COLORED_GIT_BRANCH=""
+        [ "${GIT_BRANCH}" != "" ] && COLORED_GIT_BRANCH="$(printf " ${GIT_BRANCH_COLOR}${GIT_BRANCH}${RESET}")"
+    fi
+
+    local COLORED_AT="$(printf ${LIGHT_PURPLE_EX}@${RESET})"
+    local COLORED_HOSTNAME="$(printf ${LIGHT_MAGENTA_EX}${HOSTNAME}${RESET})"
+    local COLORED_DIR="$(printf ${LIGHT_GRAY_EX}[${LIGHT_GREEN_EX}"$(dirs)"${LIGHT_GRAY_EX}]${RESET})"
 
     if [ "${UID}" -eq 0 ]; then
-        local user="$(printf ${lightRed}${USER}${resetEx})"
+        local USERNAME="$(printf ${LIGHT_RED}${USER}${RESET})"
     else
-        local user="$(printf ${lightBlueEx}${USER}${resetEx})"
+        local USERNAME="$(printf ${LIGHT_BLUE_EX}${USER}${RESET})"
     fi
 
-    local at="$(printf ${lightPurpleEx}@${resetEx})"
-    local hostname="$(printf ${lightMagentaEx}${HOSTNAME}${resetEx})"
-    local dir="$(printf ${lightGrayEx}[${lightGreenEx}"$(dirs)"${lightGrayEx}]${resetEx})"
-
-    # To get the unicode values: echo <character> hexdump -C
-    local arrowEx="$(printf ${lightYellowEx}'\xEF\x83\x9A'${resetEx})"
-    local bulletEx="$(printf ${lightYellowEx}'\xE2\x80\xA2'${resetEx})"
-    local chevronEx="$(printf ${lightYellowEx}'\xEF\x81\x94'${resetEx})"
-
-    local error=""
-    if [ $EXIT != 0 ]; then
-        error="[${red}${EXIT}${lightGray}]${straightLine}"
-    fi
-
-    if [[ -f /etc/bash/git_branch ]]; then
-        source /etc/bash/git_branch
-        local gbr=$(parse_git_branch)
-        gitBranchColor=${lightPurpleEx}
-        if [[ $gbr == "(master)" || $gbr == "(master*)" || $gbr == "(master**)" || $gbr == "(master***)" ]]; then
-            gitBranchColor=${lightBlueEx}
-        fi
-        local printGitBranch=""
-        if [[ ! $gbr == "" ]]; then
-            printGitBranch="$(printf " ${gitBranchColor}${gbr}${resetEx}")"
-        fi
-    fi
-
-    local lineSeparator=""
-    if [[ -f ~/.bash_line ]]; then
-        let fillsize=${COLUMNS}-9
-        fill=""
-        while [ "$fillsize" -gt "0" ]
-        do
-            fill="-${fill}" # fill with underscores to work on
-            let fillsize=${fillsize}-1
-        done
-        lineSeparator="$fill \t\n"
-    fi
-
-    PS1="${lineSeparator}${bulletEx} ${error}${user}${at}${hostname}"
-    PS1+=" ${arrowEx}${dir}${printGitBranch}"
-    PS1+="\n${chevronEx} "
+    PS1="${BULLET_EX} ${ERROR_REPORT}${USERNAME}${COLORED_AT}${COLORED_HOSTNAME}"
+    PS1+=" ${ARROW_EX}${COLORED_DIR}${COLORED_GIT_BRANCH}"
+    PS1+="\n${CHEVRON_EX} "
 }
