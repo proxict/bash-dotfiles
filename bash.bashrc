@@ -1,3 +1,6 @@
+#shellcheck disable=SC1090
+#shellcheck disable=SC1091
+
 # System-wide .bashrc file for interactive bash(1) shells.
 
 # To enable the settings / commands in this file for login shells as well,
@@ -20,7 +23,7 @@ fi
 #fi
 
 export HISTCONTROL=ignoreboth:erasedups
-HISTSIZE= HISTFILESIZE= # Infinite history
+HISTSIZE='' HISTFILESIZE='' # Infinite history
 HISTIGNORE='rm *:git reset*'
 
 # Prepend cd to directory names automatically
@@ -61,7 +64,7 @@ if ! shopt -oq posix; then
 fi
 
 # if the command-not-found package is installed, use it
-if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-not-found ]; then
+if [ -x /usr/lib/command-not-found ] || [ -x /usr/share/command-not-found/command-not-found ]; then
     function command_not_found_handle {
         # check because c-n-f could've been removed in the meantime
         if [ -x /usr/lib/command-not-found ]; then
@@ -90,15 +93,12 @@ function fallback_prompt_command() {
     local lightGreenEx="\[\x1b[38;2;166;226;46m\]"
     local resetEx="\[\x1b[0m\]"
 
-    user="$(printf ${lightBlueEx}${USER}${resetEx})"
-    at="$(printf ${lightPurpleEx}@${resetEx})"
-    hostname="$(printf ${lightMagentaEx}${HOSTNAME}${resetEx})"
-    dir="$(printf ${lightGrayEx}[${lightGreenEx}$(dirs)${lightGrayEx}]${resetEx})"
+    user="$(printf '%s' "${lightBlueEx}${USER}${resetEx}")"
+    at="$(printf '%s' "${lightPurpleEx}@${resetEx}")"
+    hostname="$(printf '%s' "${lightMagentaEx}${HOSTNAME}${resetEx}")"
+    dir="$(printf '%s' "${lightGrayEx}[${lightGreenEx}$(dirs)${lightGrayEx}]${resetEx}")"
 
-    error=""
-    if [ $EXIT != 0 ]; then
-        error="[${red}${EXIT}${lightGray}]${straightLine}"
-    fi
+    [ $EXIT != 0 ] && error="[${red}${EXIT}${lightGray}]${straightLine}"
 
     PS1="${error}[${user}${at}${hostname}]-${dir}\$ "
 }
