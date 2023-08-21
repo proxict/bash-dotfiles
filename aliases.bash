@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # make sure these aliases also work with sudo
 alias sudo='sudo '
 
@@ -21,9 +19,6 @@ alias ll='ls -l'
 alias lll='ls -lhAF'
 alias llll='ls -lAF'
 alias grep='grep --color=auto'
-#alias r='ranger'
-# ranger will write the chosen dir to the specified file at exit.
-alias r='ranger --choosedir=$HOME/.rangerdir && LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"; rm -f $HOME/.rangerdir'
 alias bd='. bd -si'
 
 # Avoid making irreversible mistakes
@@ -32,5 +27,4 @@ alias mv='mv -i'
 alias cp='cp -i'
 
 alias vim='nvim'
-alias v='nvim'
 

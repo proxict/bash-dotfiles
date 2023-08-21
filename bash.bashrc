@@ -1,7 +1,7 @@
 #shellcheck disable=SC1090
 #shellcheck disable=SC1091
 
-# System-wide .bashrc file for interactive bash(1) shells.
+# System-wide .bashrc file f'or interactive bash(1) shells.
 
 # To enable the settings / commands in this file for login shells as well,
 # this file has to be sourced in /etc/profile.
@@ -10,17 +10,6 @@
 [ -z "$PS1" ] && return
 # This should do the same as the above, just a different way to be sure
 [[ $- != *i* ]] && return
-
-if [[ -f /etc/bash/bash_ps1 ]]; then
-    source /etc/bash/bash_ps1
-    export PROMPT_COMMAND=prompt_command
-else
-    export PROMPT_COMMAND=fallback_prompt_command
-fi
-
-#if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-#  exec tmux -u -2
-#fi
 
 export HISTCONTROL=ignoreboth:erasedups
 HISTSIZE='' HISTFILESIZE='' # Infinite history
@@ -43,62 +32,33 @@ shopt -s checkwinsize
 # Define a variable containing a path and you will be able to cd into it regardless of the directory you're in
 shopt -s cdable_vars
 
-[[ -f /etc/bash/aliases ]] && . /etc/bash/aliases
-[[ -f /etc/bash/bash_globals ]] && . /etc/bash/bash_globals
-[[ -f /etc/bash/less_colors ]] && . /etc/bash/less_colors
+[[ -f /etc/bash/aliases.bash ]] && source /etc/bash/aliases.bash
+[[ -f /etc/bash/globals.bash ]] && source /etc/bash/globals.bash
+[[ -f /etc/bash/less_colors ]] && source /etc/bash/less_colors
 [[ -f /etc/dircolors ]] && eval "$(dircolors -b /etc/dircolors)"
 
-[[ -f ~/.bashrc ]] && . ~/.bashrc
-[[ -f ~/.bash_aliases ]] && . ~/.bash_aliases
-[[ -f ~/.bash_globals ]] && . ~/.bash_globals
-[[ -f ~/.profile ]] && . ~/.profile
-[[ -f ~/.bash_profile ]] && . ~/.bash_profile
+[[ -f "${HOME}/.bashrc" ]] && source "${HOME}/.bashrc"
+[[ -f "${HOME}/.bash_aliases" ]] && source "${HOME}/.bash_aliases"
+[[ -f "${HOME}/.bash_globals" ]] && source "${HOME}/.bash_globals"
+[[ -f "${HOME}/.profile" ]] && source "${HOME}/.profile"
+[[ -f "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
 
 # enable bash completion in interactive shells
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
+    source /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
+    source /etc/bash_completion
   fi
 fi
 
-# if the command-not-found package is installed, use it
-if [ -x /usr/lib/command-not-found ] || [ -x /usr/share/command-not-found/command-not-found ]; then
-    function command_not_found_handle {
-        # check because c-n-f could've been removed in the meantime
-        if [ -x /usr/lib/command-not-found ]; then
-            /usr/lib/command-not-found -- "$1"
-            return $?
-        elif [ -x /usr/share/command-not-found/command-not-found ]; then
-            /usr/share/command-not-found/command-not-found -- "$1"
-            return $?
-        else
-            printf "%s: command not found\n" "$1" >&2
-            return 127
-       fi
-    }
+if [ -f /etc/bash/ps1.bash ] && source /etc/bash/ps1.bash; then
+    export PROMPT_COMMAND=prompt_command
+else
+    export PROMPT_COMMAND=fallback_prompt_command
 fi
 
 function fallback_prompt_command() {
-    local EXIT="$?"
-    # colors!
-    local red="\[\e[0;31m\]"
-    local lightGray="\[\e[0;37m\]"
-    local straightLine="\342\224\200"
-    local lightGrayEx="\[\x1b[38;2;220;220;220m\]"
-    local lightBlueEx="\[\x1b[38;2;102;217;239m\]"
-    local lightMagentaEx="\[\x1b[38;2;249;38;114m\]"
-    local lightPurpleEx="\[\x1b[38;2;174;129;255m\]"
-    local lightGreenEx="\[\x1b[38;2;166;226;46m\]"
-    local resetEx="\[\x1b[0m\]"
-
-    user="$(printf '%s' "${lightBlueEx}${USER}${resetEx}")"
-    at="$(printf '%s' "${lightPurpleEx}@${resetEx}")"
-    hostname="$(printf '%s' "${lightMagentaEx}${HOSTNAME}${resetEx}")"
-    dir="$(printf '%s' "${lightGrayEx}[${lightGreenEx}$(dirs)${lightGrayEx}]${resetEx}")"
-
-    [ $EXIT != 0 ] && error="[${red}${EXIT}${lightGray}]${straightLine}"
-
-    PS1="${error}[${user}${at}${hostname}]-${dir}\$ "
+    PS1="[\[$(tput setaf 3)\]${USER}\[$(tput sgr0)\]]-[\[$(tput setaf 2)\]$(dirs)\[$(tput sgr0)\]]\$ "
 }
+
