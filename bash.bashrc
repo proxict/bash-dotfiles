@@ -50,6 +50,7 @@ if ! shopt -oq posix; then
   elif [ -f /etc/bash_completion ]; then
     source /etc/bash_completion
   fi
+  [ -f "${HOME}/.bash_completion" ] && source "${HOME}/.bash_completion"
 fi
 
 if [ "${TERM}" != "linux" ] && [ -f /etc/bash/ps1.bash ] && source /etc/bash/ps1.bash; then
