@@ -7,6 +7,7 @@ function _bg() { echo -ne "\[$(tput setab "$1")\]"; }
 function _fgbg() { _fg "$1"; _bg "$2"; }
 function _bold() { echo -ne "\[$(tput bold)\]"; }
 
+PS1_SEPARATOR=${PS1_SEPARATOR:-"\uE0B0"}
 PS1_INCLUDE_HOSTNAME=${PS1_INCLUDE_HOSTNAME:-true}
 PS1_MULTILINE=${PS1_MULTILINE:-true}
 PS1_ERROR_FG=${PS1_ERROR_FG:-0}
@@ -28,14 +29,14 @@ function prompt_command() {
 
     # Error code
     PS1=""
-    [ "${EXIT}" -ne 0 ] && PS1+="$(_fgbg "${PS1_ERROR_FG}" "${PS1_ERROR_BG}") ${EXIT} $(_reset)$(_fgbg "${PS1_ERROR_BG}" "${PS1_USERNAME_BG}")$(echo -en "\uE0B0")"
+    [ "${EXIT}" -ne 0 ] && PS1+="$(_fgbg "${PS1_ERROR_FG}" "${PS1_ERROR_BG}") ${EXIT} $(_reset)$(_fgbg "${PS1_ERROR_BG}" "${PS1_USERNAME_BG}")$(echo -en "${PS1_SEPARATOR}")"
 
     # Username and hostname
     PS1+="$(_bold; _fgbg "${PS1_USERNAME_FG}" "${PS1_USERNAME_BG}") ${USER}"
     if [ -n "${SSH_CLIENT}" ] || [ "${PS1_INCLUDE_HOSTNAME}" = true ]; then
         PS1+="$(_fg "${PS1_AT_FG}")@$(_fg "${PS1_HOSTNAME_FG}")${HOSTNAME}"
     fi
-    PS1+=" $(_reset)$(_fgbg "${PS1_USERNAME_BG}" "${PS1_DIR_BG}")$(echo -en "\uE0B0")"
+    PS1+=" $(_reset)$(_fgbg "${PS1_USERNAME_BG}" "${PS1_DIR_BG}")$(echo -en "${PS1_SEPARATOR}")"
 
     # Directory
     PS1+="$(_fgbg "${PS1_DIR_FG}" "${PS1_DIR_BG}") ${DIRS} $(_reset)"
@@ -47,11 +48,11 @@ function prompt_command() {
         echo "${GIT_STATUS}" | grep '^M $' &>/dev/null && GIT_STATUS_STR="${GIT_STATUS_STR}$(echo -ne "\u2714")"
         echo "${GIT_STATUS}" | grep '^ M$' &>/dev/null && GIT_STATUS_STR="${GIT_STATUS_STR}$(echo -ne "\u2717")"
         echo "${GIT_STATUS}" | grep '??' &>/dev/null && GIT_STATUS_STR="${GIT_STATUS_STR}*"
-        PS1+="$(_fgbg "${PS1_DIR_BG}" "${PS1_GIT_BG}")$(echo -en "\uE0B0")$(_reset)"
+        PS1+="$(_fgbg "${PS1_DIR_BG}" "${PS1_GIT_BG}")$(echo -en "${PS1_SEPARATOR}")$(_reset)"
         PS1+="$([ "${GIT_BRANCH}" = "master" ] && _bold)$(_fgbg "${PS1_GIT_FG}" "${PS1_GIT_BG}") $(echo -en "\uE0A0") ${GIT_BRANCH} "
-        PS1+="${GIT_STATUS_STR}$(_reset)$(_fg "${PS1_GIT_BG}")$(echo -en "\uE0B0")"
+        PS1+="${GIT_STATUS_STR}$(_reset)$(_fg "${PS1_GIT_BG}")$(echo -en "${PS1_SEPARATOR}")"
     else
-        PS1+="$(_fg "${PS1_DIR_BG}")$(echo -en "\uE0B0")"
+        PS1+="$(_fg "${PS1_DIR_BG}")$(echo -en "${PS1_SEPARATOR}")"
     fi
 
     # Prompt
