@@ -52,7 +52,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [ -f /etc/bash/ps1.bash ] && source /etc/bash/ps1.bash; then
+if [ "${TERM}" != "linux" ] && [ -f /etc/bash/ps1.bash ] && source /etc/bash/ps1.bash; then
     export PROMPT_COMMAND=prompt_command
 else
     export PROMPT_COMMAND=fallback_prompt_command
