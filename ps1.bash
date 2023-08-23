@@ -18,6 +18,8 @@ PS1_AT_FG=${PS1_AT_FG:-0}
 PS1_HOSTNAME_FG=${PS1_HOSTNAME_FG:-0}
 PS1_DIR_FG=${PS1_DIR_FG:-11}
 PS1_DIR_BG=${PS1_DIR_BG:-8}
+PS1_JOBS_FG=${PS1_JOBS_FG:-0}
+PS1_JOBS_BG=${PS1_JOBS_BG:-6}
 PS1_GIT_FG=${PS1_GIT_FG:-15}
 PS1_GIT_BG=${PS1_GIT_BG:-5}
 
@@ -35,6 +37,13 @@ function _ps1_block_error() {
     [ "$1" -eq 0 ] && return
     PS1+="$(_bg "${PS1_ERROR_BG}")" && __ps1_draw_separator
     PS1+="$(_fg "${PS1_ERROR_FG}") $(echo -en "\uea87") $1 $(_reset; _fg "${PS1_ERROR_BG}")"
+}
+
+function _ps1_block_jobs() {
+    local NR_JOBS
+    NR_JOBS="$(jobs -p | wc -l)" && [ "${NR_JOBS}" -gt 0 ] || return
+    PS1+="$(_bg "${PS1_JOBS_BG}")" && __ps1_draw_separator
+    PS1+="$(_fg "${PS1_JOBS_FG}") $(echo -en "\uf0ae") ${NR_JOBS} $(_reset; _fg "${PS1_JOBS_BG}")"
 }
 
 function _ps1_block_username() {
@@ -78,6 +87,7 @@ function prompt_command() {
     PS1=""
 
     _ps1_block_error "${EXIT}"
+    _ps1_block_jobs
     _ps1_block_username
     _ps1_block_directory
     _ps1_block_git
